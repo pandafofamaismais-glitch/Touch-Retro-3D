@@ -123,13 +123,14 @@ let particles = [];
 
 let running = false;
 let paused = false;
+
 let phaseStart = 0;
 let score = 0;
 let lives = 3;
-
 let progress = 0;
 
 let keys = {};
+
 let joy = {
   x: 0,
   y: 0
@@ -163,7 +164,7 @@ function show(id) {
 
 
 /* =========================
-   LISTA DE FASES
+   FASES
 ========================= */
 
 function phaseCards() {
@@ -194,7 +195,7 @@ function phaseCards() {
 
 
 /* =========================
-   ESCOLHA DE PERSONAGEM
+   PERSONAGENS
 ========================= */
 
 function openCharacter(i) {
@@ -255,7 +256,7 @@ function openCharacter(i) {
 
 
 /* =========================
-   BOTÕES DO MENU
+   BOTÕES
 ========================= */
 
 $('playBtn').onclick = () =>
@@ -309,6 +310,20 @@ function init3D() {
       0.1,
       300
     );
+
+  /* CÂMERA CORRIGIDA */
+
+  camera.position.set(
+    0,
+    6,
+    12
+  );
+
+  camera.lookAt(
+    0,
+    1,
+    -10
+  );
 
   renderer =
     new THREE.WebGLRenderer({
@@ -366,7 +381,8 @@ function init3D() {
 
   scene.add(sun);
 
-  player = new THREE.Group();
+  player =
+    new THREE.Group();
 
   scene.add(player);
 
@@ -379,7 +395,9 @@ function init3D() {
         !paused &&
         e.pointerType !== 'touch'
       ) {
+
         doAction();
+
       }
 
     }
@@ -409,7 +427,7 @@ function init3D() {
 
 
 /* =========================
-   OBJETOS 3D
+   MATERIAIS 3D
 ========================= */
 
 function mat(
@@ -427,7 +445,16 @@ function mat(
 }
 
 
-function box(w, h, d, c) {
+/* =========================
+   CUBO
+========================= */
+
+function box(
+  w,
+  h,
+  d,
+  c
+) {
 
   const m =
     new THREE.Mesh(
@@ -446,7 +473,14 @@ function box(w, h, d, c) {
 }
 
 
-function sphere(r, c) {
+/* =========================
+   ESFERA
+========================= */
+
+function sphere(
+  r,
+  c
+) {
 
   const m =
     new THREE.Mesh(
@@ -464,6 +498,10 @@ function sphere(r, c) {
   return m;
 }
 
+
+/* =========================
+   CHÃO
+========================= */
 
 function ground(
   size = 100,
@@ -494,7 +532,9 @@ function ground(
 
 function clearWorld() {
 
-  while (world.children.length) {
+  while (
+    world.children.length
+  ) {
 
     world.remove(
       world.children[0]
@@ -520,7 +560,7 @@ function clearWorld() {
 
 
 /* =========================
-   PERSONAGEM
+   PERSONAGEM 3D
 ========================= */
 
 function buildPlayer() {
@@ -642,6 +682,20 @@ function startGame() {
     phases[selectedPhase]
   );
 
+  /* GARANTE A VISÃO DA PISTA */
+
+  camera.position.set(
+    0,
+    6,
+    12
+  );
+
+  camera.lookAt(
+    0,
+    1,
+    -10
+  );
+
   updateHUD();
 
   countdown();
@@ -649,7 +703,7 @@ function startGame() {
 
 
 /* =========================
-   CONTAGEM REGRESSIVA
+   CONTAGEM
 ========================= */
 
 function countdown() {
@@ -660,34 +714,38 @@ function countdown() {
     .classList
     .remove('hidden');
 
-  $('countdown').textContent = n;
+  $('countdown').textContent =
+    n;
 
   const t =
-    setInterval(() => {
+    setInterval(
+      () => {
 
-      n--;
+        n--;
 
-      if (n <= 0) {
+        if (n <= 0) {
 
-        clearInterval(t);
+          clearInterval(t);
 
-        $('countdown')
-          .classList
-          .add('hidden');
+          $('countdown')
+            .classList
+            .add('hidden');
 
-        paused = false;
+          paused = false;
 
-        phaseStart =
-          performance.now();
+          phaseStart =
+            performance.now();
 
-      } else {
+        } else {
 
-        $('countdown')
-          .textContent = n;
+          $('countdown')
+            .textContent = n;
 
-      }
+        }
 
-    }, 700);
+      },
+      700
+    );
 }
 
 
@@ -711,7 +769,11 @@ function buildPhase(p) {
     p.type === 'kart' ||
     p.type === 'sonic'
   ) {
-    buildRunner(p.type);
+
+    buildRunner(
+      p.type
+    );
+
   }
 
   if (p.type === 'bomb')
@@ -730,7 +792,11 @@ function buildPhase(p) {
     p.type === 'fight' ||
     p.type === 'mk'
   ) {
-    buildFight(p.type);
+
+    buildFight(
+      p.type
+    );
+
   }
 
   if (p.type === 'poke')
@@ -748,12 +814,13 @@ function buildPhase(p) {
 
 
 /* =========================
-   CORES DAS FASES
+   CORES
 ========================= */
 
 function phaseColor(t) {
 
   return {
+
     kart: 0x31516e,
     bomb: 0x15151b,
     pac: 0x090b25,
@@ -766,8 +833,8 @@ function phaseColor(t) {
     flappy: 0x66a4cf,
     guitar: 0x251c2b,
     final: 0x24213b
-  }[t] || 0x101820;
 
+  }[t] || 0x101820;
 }
 
 
@@ -777,7 +844,103 @@ function phaseColor(t) {
 
 function buildRunner(type) {
 
-  for (let i = 0; i < 45; i++) {
+  /*
+    PISTA
+  */
+
+  const road =
+    box(
+      24,
+      0.18,
+      310,
+      0x30343b
+    );
+
+  road.position.set(
+    0,
+    0.08,
+    -145
+  );
+
+  world.add(road);
+
+
+  /*
+    LATERAIS
+  */
+
+  const leftSide =
+    box(
+      2,
+      0.4,
+      310,
+      0x4a4f57
+    );
+
+  leftSide.position.set(
+    -13,
+    0.2,
+    -145
+  );
+
+  world.add(leftSide);
+
+
+  const rightSide =
+    box(
+      2,
+      0.4,
+      310,
+      0x4a4f57
+    );
+
+  rightSide.position.set(
+    13,
+    0.2,
+    -145
+  );
+
+  world.add(rightSide);
+
+
+  /*
+    FAIXAS DA PISTA
+  */
+
+  for (
+    let i = 0;
+    i < 45;
+    i++
+  ) {
+
+    const lane =
+      box(
+        0.35,
+        0.03,
+        3,
+        0xffffff
+      );
+
+    lane.position.set(
+      0,
+      0.19,
+      -i * 7 - 5
+    );
+
+    world.add(lane);
+
+  }
+
+
+  /*
+    OBSTÁCULOS
+  */
+
+  for (
+    let i = 0;
+    i < 45;
+    i++
+  ) {
 
     const lane =
       (i % 3 - 1) * 4;
@@ -802,7 +965,13 @@ function buildRunner(type) {
     world.add(o);
 
     objects.push(o);
+
   }
+
+
+  /*
+    ANÉIS
+  */
 
   for (
     let i = 0;
@@ -845,7 +1014,9 @@ function buildBomb() {
       z -= 2
     ) {
 
-      if (Math.random() < 0.48) {
+      if (
+        Math.random() < 0.48
+      ) {
 
         const b =
           box(
@@ -864,10 +1035,9 @@ function buildBomb() {
         world.add(b);
 
         objects.push(b);
+
       }
-
     }
-
   }
 
   gameState.bombs = [];
@@ -880,7 +1050,8 @@ function buildBomb() {
 
 function buildPac() {
 
-  const wall = 0x27346b;
+  const wall =
+    0x27346b;
 
   for (
     let x = -9;
@@ -905,7 +1076,9 @@ function buildPac() {
     world.add(w);
 
     objects.push(w);
+
   }
+
 
   for (
     let z = -10;
@@ -931,6 +1104,7 @@ function buildPac() {
 
     objects.push(w);
 
+
     w =
       box(
         1,
@@ -946,7 +1120,11 @@ function buildPac() {
     );
 
     world.add(w);
+
+    objects.push(w);
+
   }
+
 
   for (
     let i = 0;
@@ -967,7 +1145,12 @@ function buildPac() {
 
   }
 
-  for (let i = 0; i < 3; i++) {
+
+  for (
+    let i = 0;
+    i < 3;
+    i++
+  ) {
 
     addEnemy(
       rand(-7, 7),
@@ -986,12 +1169,21 @@ function buildPac() {
 
 function buildMario() {
 
-  for (let i = 0; i < 30; i++) {
+  for (
+    let i = 0;
+    i < 30;
+    i++
+  ) {
 
-    const x = rand(-7, 7);
-    const z = -i * 4 - 8;
+    const x =
+      rand(-7, 7);
 
-    if (i % 3 === 0) {
+    const z =
+      -i * 4 - 8;
+
+    if (
+      i % 3 === 0
+    ) {
 
       const o =
         box(
@@ -1010,9 +1202,10 @@ function buildMario() {
       world.add(o);
 
       objects.push(o);
-    }
 
+    }
   }
+
 
   for (
     let i = 0;
@@ -1043,9 +1236,17 @@ function buildMario() {
 
 function buildDK() {
 
-  for (let row = 0; row < 5; row++) {
+  for (
+    let row = 0;
+    row < 5;
+    row++
+  ) {
 
-    for (let i = 0; i < 6; i++) {
+    for (
+      let i = 0;
+      i < 6;
+      i++
+    ) {
 
       const p =
         box(
@@ -1058,15 +1259,17 @@ function buildDK() {
       p.position.set(
         -7 + i * 2.8,
         1 + row * 2,
-        -8 - row * 10 + (row % 2) * 3
+        -8 - row * 10 +
+          (row % 2) * 3
       );
 
       world.add(p);
 
       objects.push(p);
-    }
 
+    }
   }
+
 
   for (
     let i = 0;
@@ -1087,11 +1290,17 @@ function buildDK() {
 
   }
 
-  for (let i = 0; i < 5; i++) {
+
+  for (
+    let i = 0;
+    i < 5;
+    i++
+  ) {
 
     addEnemy(
       rand(-7, 7),
-      1 + Math.floor(i / 2) * 2,
+      1 +
+        Math.floor(i / 2) * 2,
       -10 - i * 9,
       0.9 + i * 0.12
     );
@@ -1121,6 +1330,7 @@ function buildFight(type) {
       );
 
     e.scale.setScalar(1.2);
+
   }
 
   gameState.enemyIndex = 0;
@@ -1183,7 +1393,9 @@ function buildFlappy() {
     const gap =
       rand(1.8, 4.5);
 
-    for (const y of [0, 7]) {
+    for (
+      const y of [0, 7]
+    ) {
 
       const h =
         y === 0
@@ -1207,8 +1419,8 @@ function buildFlappy() {
       world.add(pipe);
 
       objects.push(pipe);
-    }
 
+    }
   }
 
   gameState.passed = 0;
@@ -1257,6 +1469,7 @@ function buildGuitar() {
     world.add(n);
 
     gameState.notes.push(n);
+
   }
 }
 
@@ -1267,7 +1480,11 @@ function buildGuitar() {
 
 function buildFinal() {
 
-  for (let i = 0; i < 20; i++) {
+  for (
+    let i = 0;
+    i < 20;
+    i++
+  ) {
 
     addItem(
       sphere(
@@ -1282,7 +1499,12 @@ function buildFinal() {
 
   }
 
-  for (let i = 0; i < 12; i++) {
+
+  for (
+    let i = 0;
+    i < 12;
+    i++
+  ) {
 
     const o =
       box(
@@ -1301,9 +1523,15 @@ function buildFinal() {
     world.add(o);
 
     objects.push(o);
+
   }
 
-  for (let i = 0; i < 3; i++) {
+
+  for (
+    let i = 0;
+    i < 3;
+    i++
+  ) {
 
     addEnemy(
       rand(-6, 6),
@@ -1359,18 +1587,41 @@ function objectiveText(p) {
 
   const a = {
 
-    kart: 'Complete a corrida e pegue os anéis.',
-    bomb: 'Destrua blocos com bombas.',
-    pac: 'Colete as bolinhas.',
-    mario: 'Pegue as moedas e avance.',
-    dk: 'Suba e pegue os itens.',
-    fight: 'Derrote os adversários.',
-    mk: 'Derrote os adversários usando ataque e defesa.',
-    poke: 'Vença a batalha por turnos.',
-    sonic: 'Pegue anéis e desvie.',
-    flappy: 'Passe pelos canos.',
-    guitar: 'Acerte as notas.',
-    final: 'Complete o desafio combinado.'
+    kart:
+      'Complete a corrida e pegue os anéis.',
+
+    bomb:
+      'Destrua blocos com bombas.',
+
+    pac:
+      'Colete as bolinhas.',
+
+    mario:
+      'Pegue as moedas e avance.',
+
+    dk:
+      'Suba e pegue os itens.',
+
+    fight:
+      'Derrote os adversários.',
+
+    mk:
+      'Derrote os adversários usando ataque e defesa.',
+
+    poke:
+      'Vença a batalha por turnos.',
+
+    sonic:
+      'Pegue anéis e desvie.',
+
+    flappy:
+      'Passe pelos canos.',
+
+    guitar:
+      'Acerte as notas.',
+
+    final:
+      'Complete o desafio combinado.'
 
   };
 
@@ -1387,16 +1638,28 @@ function moveInput() {
   let x = joy.x;
   let y = joy.y;
 
-  if (keys.ArrowLeft || keys.a)
+  if (
+    keys.ArrowLeft ||
+    keys.a
+  )
     x -= 1;
 
-  if (keys.ArrowRight || keys.d)
+  if (
+    keys.ArrowRight ||
+    keys.d
+  )
     x += 1;
 
-  if (keys.ArrowUp || keys.w)
+  if (
+    keys.ArrowUp ||
+    keys.w
+  )
     y -= 1;
 
-  if (keys.ArrowDown || keys.s)
+  if (
+    keys.ArrowDown ||
+    keys.s
+  )
     y += 1;
 
   return {
@@ -1412,25 +1675,31 @@ function moveInput() {
 
 function update(dt) {
 
-  if (!running || paused)
+  if (
+    !running ||
+    paused
+  )
     return;
 
   const p =
     phases[selectedPhase];
 
   const elapsed =
-    (performance.now() - phaseStart) / 1000;
+    (performance.now() -
+      phaseStart) / 1000;
 
   const difficulty =
-    1 + selectedPhase * 0.09 + elapsed / 70;
+    1 +
+    selectedPhase * 0.09 +
+    elapsed / 70;
 
   let m =
     moveInput();
 
 
-  /* FLAPPY */
-
-  if (p.type === 'flappy') {
+  if (
+    p.type === 'flappy'
+  ) {
 
     player.userData.vy -=
       14 * dt;
@@ -1443,8 +1712,11 @@ function update(dt) {
 
     player.position.x = -6;
 
-    for (const o of objects)
-      o.position.z += 7 * dt;
+    for (
+      const o of objects
+    )
+      o.position.z +=
+        7 * dt;
 
     if (
       player.position.y < 0.5 ||
@@ -1456,16 +1728,17 @@ function update(dt) {
       player.position.y = 4;
 
       player.userData.vy = 0;
+
     }
 
-  }
-
-  /* OUTRAS FASES */
-
-  else {
+  } else {
 
     const speed =
-      (p.type === 'sonic' ? 11 : 7) * dt;
+      (
+        p.type === 'sonic'
+          ? 11
+          : 7
+      ) * dt;
 
     player.position.x +=
       m.x * speed;
@@ -1487,6 +1760,7 @@ function update(dt) {
         12
       );
 
+
     if (
       p.type === 'mario' ||
       p.type === 'dk'
@@ -1499,18 +1773,18 @@ function update(dt) {
       player.position.y +=
         gameState.vy * dt;
 
-      if (player.position.y < 1) {
+      if (
+        player.position.y < 1
+      ) {
 
         player.position.y = 1;
+
         gameState.vy = 0;
+
       }
-
     }
-
   }
 
-
-  /* ATUALIZA CADA FASE */
 
   if (
     p.type === 'kart' ||
@@ -1522,19 +1796,29 @@ function update(dt) {
       dt
     );
 
-  if (p.type === 'bomb')
-    bombUpdate(difficulty);
+  if (
+    p.type === 'bomb'
+  )
+    bombUpdate(
+      difficulty
+    );
 
-  if (p.type === 'pac')
+  if (
+    p.type === 'pac'
+  )
     pacUpdate(
       difficulty,
       dt
     );
 
-  if (p.type === 'mario')
+  if (
+    p.type === 'mario'
+  )
     marioUpdate(dt);
 
-  if (p.type === 'dk')
+  if (
+    p.type === 'dk'
+  )
     dkUpdate(
       difficulty,
       dt
@@ -1550,16 +1834,24 @@ function update(dt) {
       dt
     );
 
-  if (p.type === 'poke')
+  if (
+    p.type === 'poke'
+  )
     pokeUpdate(dt);
 
-  if (p.type === 'flappy')
+  if (
+    p.type === 'flappy'
+  )
     flappyUpdate();
 
-  if (p.type === 'guitar')
+  if (
+    p.type === 'guitar'
+  )
     guitarUpdate(dt);
 
-  if (p.type === 'final')
+  if (
+    p.type === 'final'
+  )
     finalUpdate(
       difficulty,
       dt
@@ -1578,7 +1870,7 @@ function update(dt) {
 
 
 /* =========================
-   MARIO KART / SONIC UPDATE
+   CORRIDA
 ========================= */
 
 function runnerUpdate(
@@ -1587,14 +1879,20 @@ function runnerUpdate(
   dt
 ) {
 
-  for (const o of objects) {
+  for (
+    const o of objects
+  ) {
 
     o.position.z +=
-      (p.type === 'sonic' ? 7 : 4) *
-      d *
-      dt;
+      (
+        p.type === 'sonic'
+          ? 7
+          : 4
+      ) * d * dt;
 
-    if (o.position.z > 14)
+    if (
+      o.position.z > 14
+    )
       o.position.z = -80;
 
     if (
@@ -1606,17 +1904,24 @@ function runnerUpdate(
       )
     )
       loseLife();
+
   }
 
 
-  for (const it of items) {
+  for (
+    const it of items
+  ) {
 
     it.position.z +=
-      (p.type === 'sonic' ? 7 : 4) *
-      d *
-      dt;
+      (
+        p.type === 'sonic'
+          ? 7
+          : 4
+      ) * d * dt;
 
-    if (it.position.z > 14)
+    if (
+      it.position.z > 14
+    )
       it.position.z = -90;
 
     if (
@@ -1633,19 +1938,21 @@ function runnerUpdate(
       progress++;
 
       score += 100;
-    }
 
+    }
   }
 }
 
 
 /* =========================
-   BOMBERMAN UPDATE
+   BOMBERMAN
 ========================= */
 
 function bombUpdate(d) {
 
-  for (const e of objects) {
+  for (
+    const e of objects
+  ) {
 
     if (
       hit(
@@ -1656,20 +1963,28 @@ function bombUpdate(d) {
       )
     )
       loseLife();
+
   }
 
-  if (!gameState.lastBomb)
+  if (
+    !gameState.lastBomb
+  )
     gameState.lastBomb = 0;
 }
 
 
 /* =========================
-   PAC-MAN UPDATE
+   PAC-MAN
 ========================= */
 
-function pacUpdate(d, dt) {
+function pacUpdate(
+  d,
+  dt
+) {
 
-  for (const e of enemies) {
+  for (
+    const e of enemies
+  ) {
 
     const dx =
       player.position.x -
@@ -1680,7 +1995,10 @@ function pacUpdate(d, dt) {
       e.position.z;
 
     const len =
-      Math.hypot(dx, dz) || 1;
+      Math.hypot(
+        dx,
+        dz
+      ) || 1;
 
     e.position.x +=
       dx / len *
@@ -1703,10 +2021,13 @@ function pacUpdate(d, dt) {
       )
     )
       loseLife();
+
   }
 
 
-  for (const it of items) {
+  for (
+    const it of items
+  ) {
 
     if (
       it.position.y > 0 &&
@@ -1723,8 +2044,8 @@ function pacUpdate(d, dt) {
       progress++;
 
       score += 50;
-    }
 
+    }
   }
 }
 
@@ -1735,7 +2056,9 @@ function pacUpdate(d, dt) {
 
 function marioUpdate(dt) {
 
-  for (const o of objects) {
+  for (
+    const o of objects
+  ) {
 
     if (
       hit(
@@ -1748,10 +2071,13 @@ function marioUpdate(dt) {
         o.position.y + 1.5
     )
       loseLife();
+
   }
 
 
-  for (const it of items) {
+  for (
+    const it of items
+  ) {
 
     if (
       it.position.y > 0 &&
@@ -1768,8 +2094,8 @@ function marioUpdate(dt) {
       progress++;
 
       score += 100;
-    }
 
+    }
   }
 }
 
@@ -1778,13 +2104,19 @@ function marioUpdate(dt) {
    DONKEY KONG UPDATE
 ========================= */
 
-function dkUpdate(d, dt) {
+function dkUpdate(
+  d,
+  dt
+) {
 
-  for (const e of enemies) {
+  for (
+    const e of enemies
+  ) {
 
     e.position.x +=
       Math.sin(
-        performance.now() / 700 +
+        performance.now() /
+          700 +
         e.position.z
       ) *
       e.userData.speed *
@@ -1800,10 +2132,13 @@ function dkUpdate(d, dt) {
       )
     )
       loseLife();
+
   }
 
 
-  for (const it of items) {
+  for (
+    const it of items
+  ) {
 
     if (
       it.position.y > 0 &&
@@ -1820,14 +2155,14 @@ function dkUpdate(d, dt) {
       progress++;
 
       score += 90;
-    }
 
+    }
   }
 }
 
 
 /* =========================
-   FIGHT UPDATE
+   LUTA
 ========================= */
 
 function fightUpdate(
@@ -1836,9 +2171,13 @@ function fightUpdate(
   dt
 ) {
 
-  for (const e of enemies) {
+  for (
+    const e of enemies
+  ) {
 
-    if (e.userData.dead)
+    if (
+      e.userData.dead
+    )
       continue;
 
     const dx =
@@ -1853,14 +2192,17 @@ function fightUpdate(
 
     if (
       Math.abs(dx) < 1.6 &&
-      Math.random() < 0.01 * d
+      Math.random() <
+        0.01 * d
     )
       loseLife();
+
   }
 
   enemies =
     enemies.filter(
-      e => !e.userData.dead
+      e =>
+        !e.userData.dead
     );
 }
 
@@ -1890,16 +2232,22 @@ function pokeUpdate() {
 
 function flappyUpdate() {
 
-  for (const o of objects) {
+  for (
+    const o of objects
+  ) {
 
-    if (o.position.z > 8) {
+    if (
+      o.position.z > 8
+    ) {
 
-      o.position.z = -110;
+      o.position.z =
+        -110;
 
       gameState.passed++;
 
       progress =
         gameState.passed;
+
     }
 
     if (
@@ -1911,6 +2259,7 @@ function flappyUpdate() {
       )
     )
       loseLife();
+
   }
 }
 
@@ -1929,13 +2278,17 @@ function guitarUpdate(dt) {
     n.position.z +=
       8 * dt;
 
-    if (n.position.z > 9) {
+    if (
+      n.position.z > 9
+    ) {
 
       n.position.z = -100;
 
-      n.userData.missed = true;
+      n.userData.missed =
+        true;
 
       loseLife();
+
     }
 
     if (
@@ -1951,15 +2304,17 @@ function guitarUpdate(dt) {
       pointerAction
     ) {
 
-      n.userData.hit = true;
+      n.userData.hit =
+        true;
 
-      n.position.y = -100;
+      n.position.y =
+        -100;
 
       progress++;
 
       score += 100;
-    }
 
+    }
   }
 
   pointerAction = false;
@@ -1967,7 +2322,7 @@ function guitarUpdate(dt) {
 
 
 /* =========================
-   FASE FINAL UPDATE
+   FINAL
 ========================= */
 
 function finalUpdate(
@@ -1975,7 +2330,9 @@ function finalUpdate(
   dt
 ) {
 
-  for (const e of enemies) {
+  for (
+    const e of enemies
+  ) {
 
     const dx =
       player.position.x -
@@ -1986,7 +2343,10 @@ function finalUpdate(
       e.position.z;
 
     const len =
-      Math.hypot(dx, dz) || 1;
+      Math.hypot(
+        dx,
+        dz
+      ) || 1;
 
     e.position.x +=
       dx / len *
@@ -2009,10 +2369,13 @@ function finalUpdate(
       )
     )
       loseLife();
+
   }
 
 
-  for (const it of items) {
+  for (
+    const it of items
+  ) {
 
     if (
       it.position.y > 0 &&
@@ -2029,14 +2392,14 @@ function finalUpdate(
       progress++;
 
       score += 80;
-    }
 
+    }
   }
 }
 
 
 /* =========================
-   OBJETIVO DA FASE
+   VERIFICAR OBJETIVO
 ========================= */
 
 function checkGoal(
@@ -2051,7 +2414,9 @@ function checkGoal(
     winPhase();
 
     return;
+
   }
+
 
   if (
     elapsed >= p.time
@@ -2070,7 +2435,6 @@ function checkGoal(
       gameOver();
 
     }
-
   }
 }
 
@@ -2102,7 +2466,8 @@ function hit(
     dx * dx +
     dy * dy +
     dz * dz
-  ) < (ra + rb) ** 2;
+  ) <
+    (ra + rb) ** 2;
 }
 
 
@@ -2121,13 +2486,16 @@ function loseLife() {
 
   lives--;
 
-  if (lives <= 0) {
+  if (
+    lives <= 0
+  ) {
 
     gameOver();
 
   } else {
 
     player.position.x = 0;
+
     player.position.z = 2;
 
   }
@@ -2135,7 +2503,7 @@ function loseLife() {
 
 
 /* =========================
-   AÇÃO PRINCIPAL
+   AÇÃO
 ========================= */
 
 function doAction() {
@@ -2163,6 +2531,7 @@ function doAction() {
       player.position.y <= 1.15
     )
       gameState.vy = 9.5;
+
   }
 
 
@@ -2191,6 +2560,7 @@ function doAction() {
     );
 
     b.userData.bomb = true;
+
     b.userData.timer = 1.3;
 
     world.add(b);
@@ -2198,9 +2568,11 @@ function doAction() {
     objects.push(b);
 
     setTimeout(
-      () => explodeBomb(b),
+      () =>
+        explodeBomb(b),
       1300
     );
+
   }
 
 
@@ -2211,7 +2583,9 @@ function doAction() {
     p.type === 'mk'
   ) {
 
-    for (const e of enemies) {
+    for (
+      const e of enemies
+    ) {
 
       if (
         !e.userData.dead &&
@@ -2223,15 +2597,15 @@ function doAction() {
         )
       ) {
 
-        e.userData.dead = true;
+        e.userData.dead =
+          true;
 
         progress++;
 
         score += 300;
+
       }
-
     }
-
   }
 
 
@@ -2251,15 +2625,7 @@ function doAction() {
       gameState.enemyHP <= 0
     )
       winPhase();
-  }
 
-
-  /* GUITAR */
-
-  if (
-    p.type === 'guitar'
-  ) {
-    // Ação controlada pelo ritmo
   }
 }
 
@@ -2270,7 +2636,9 @@ function doAction() {
 
 function explodeBomb(b) {
 
-  if (!b.parent)
+  if (
+    !b.parent
+  )
     return;
 
   for (
@@ -2284,13 +2652,14 @@ function explodeBomb(b) {
       ) < 4
     ) {
 
-      o.position.y = -30;
+      o.position.y =
+        -30;
 
       progress++;
 
       score += 50;
-    }
 
+    }
   }
 
   b.removeFromParent();
@@ -2303,19 +2672,25 @@ function explodeBomb(b) {
 
 function doAction2() {
 
-  if (!running || paused)
+  if (
+    !running ||
+    paused
+  )
     return;
 
   const p =
     phases[selectedPhase];
 
+
   if (
     p.type === 'mk'
   ) {
 
-    gameState.defend = 0.8;
+    gameState.defend =
+      0.8;
 
     score += 20;
+
   }
 
 
@@ -2324,7 +2699,8 @@ function doAction2() {
     gameState.enemyHP > 0
   ) {
 
-    gameState.enemyHP -= 2;
+    gameState.enemyHP -=
+      2;
 
     progress =
       Math.min(
@@ -2333,6 +2709,7 @@ function doAction2() {
       );
 
     score += 250;
+
   }
 
 
@@ -2343,6 +2720,7 @@ function doAction2() {
     progress += 3;
 
     score += 100;
+
   }
 }
 
@@ -2363,6 +2741,7 @@ function cameraUpdate(dt) {
       player.position.z + 9
     );
 
+
   if (
     p === 'flappy'
   ) {
@@ -2375,12 +2754,14 @@ function cameraUpdate(dt) {
 
   }
 
+
   camera.position.lerp(
     target,
-    1 - Math.pow(
-      0.001,
-      dt
-    )
+    1 -
+      Math.pow(
+        0.001,
+        dt
+      )
   );
 
   camera.lookAt(
@@ -2392,16 +2773,19 @@ function cameraUpdate(dt) {
 
 
 /* =========================
-   VENCER FASE
+   VENCER
 ========================= */
 
 function winPhase() {
 
-  if (!running)
+  if (
+    !running
+  )
     return;
 
   running = false;
   paused = true;
+
 
   if (
     selectedPhase + 1 >= 12
@@ -2428,6 +2812,7 @@ function winPhase() {
     unlocked
   );
 
+
   showMessage(
     'FASE CONCLUÍDA!',
     `Pontuação: ${Math.floor(score)}`,
@@ -2442,7 +2827,9 @@ function winPhase() {
 
 function gameOver() {
 
-  if (!running)
+  if (
+    !running
+  )
     return;
 
   running = false;
@@ -2469,11 +2856,19 @@ function showMessage(
   $('message').innerHTML =
     `
       <h2>${title}</h2>
+
       <p>${text}</p>
 
       ${
         next
-          ? '<button class="next" id="nextBtn">PRÓXIMA FASE</button>'
+          ? `
+            <button
+              class="next"
+              id="nextBtn"
+            >
+              PRÓXIMA FASE
+            </button>
+          `
           : ''
       }
 
@@ -2484,6 +2879,7 @@ function showMessage(
         MENU
       </button>
     `;
+
 
   $('message')
     .classList
@@ -2506,7 +2902,6 @@ function showMessage(
         );
 
       };
-
   }
 
 
@@ -2529,13 +2924,18 @@ function showMessage(
 
 function togglePause() {
 
-  if (!running)
+  if (
+    !running
+  )
     return;
 
   paused = !paused;
 
   $('pauseBtn').textContent =
-    paused ? '▶' : 'Ⅱ';
+    paused
+      ? '▶'
+      : 'Ⅱ';
+
 
   if (paused) {
 
@@ -2550,6 +2950,7 @@ function togglePause() {
     $('message')
       .classList
       .add('hidden');
+
   }
 }
 
@@ -2575,10 +2976,13 @@ function bindControls() {
       joyEl.getBoundingClientRect();
 
     const cx =
-      r.left + r.width / 2;
+      r.left +
+      r.width / 2;
 
     const cy =
-      r.top + r.height / 2;
+      r.top +
+      r.height / 2;
+
 
     let x =
       (e.clientX - cx) /
@@ -2588,18 +2992,27 @@ function bindControls() {
       (e.clientY - cy) /
       (r.height * 0.38);
 
-    const l =
-      Math.hypot(x, y);
 
-    if (l > 1) {
+    const l =
+      Math.hypot(
+        x,
+        y
+      );
+
+
+    if (
+      l > 1
+    ) {
 
       x /= l;
       y /= l;
 
     }
 
+
     joy.x = x;
     joy.y = y;
+
 
     stick.style.transform =
       `translate(${x * 32}px, ${y * 32}px)`;
@@ -2618,6 +3031,7 @@ function bindControls() {
       );
 
       pos(e);
+
     }
   );
 
@@ -2639,27 +3053,27 @@ function bindControls() {
     'pointerup',
     'pointercancel',
     'lostpointercapture'
-  ].forEach(ev =>
+  ].forEach(
+    ev =>
 
-    joyEl.addEventListener(
-      ev,
-      () => {
+      joyEl.addEventListener(
+        ev,
+        () => {
 
-        pid = null;
+          pid = null;
 
-        joy.x = 0;
-        joy.y = 0;
+          joy.x = 0;
+          joy.y = 0;
 
-        stick.style.transform =
-          'translate(0,0)';
+          stick.style.transform =
+            'translate(0,0)';
 
-      }
-    )
-
+        }
+      )
   );
 
 
-  /* BOTÃO AÇÃO */
+  /* AÇÃO */
 
   $('actionA')
     .addEventListener(
@@ -2674,7 +3088,7 @@ function bindControls() {
     );
 
 
-  /* BOTÃO AÇÃO 2 */
+  /* AÇÃO 2 */
 
   $('actionB')
     .addEventListener(
@@ -2697,17 +3111,27 @@ function bindControls() {
 
       keys[e.key] = true;
 
-      if (e.key === ' ') {
+
+      if (
+        e.key === ' '
+      ) {
 
         e.preventDefault();
 
         doAction();
+
       }
 
-      if (e.key === 'Shift')
+
+      if (
+        e.key === 'Shift'
+      )
         doAction2();
 
-      if (e.key === 'Escape')
+
+      if (
+        e.key === 'Escape'
+      )
         togglePause();
 
     }
@@ -2726,7 +3150,7 @@ function bindControls() {
 
 
 /* =========================
-   LOOP DO JOGO
+   LOOP
 ========================= */
 
 function animate() {
@@ -2741,12 +3165,15 @@ function animate() {
       0.05
     );
 
+
   if (
     gameState.invuln > 0
   )
     gameState.invuln -= dt;
 
+
   update(dt);
+
 
   if (
     renderer &&
